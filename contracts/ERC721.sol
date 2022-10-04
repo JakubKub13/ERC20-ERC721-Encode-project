@@ -85,4 +85,21 @@ contract ERC721 is IERC721 {
             IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, data) == 
             IERC721Receiver.onERC721Received.selector, "ERC721: Unsafe recipient");
     }
+
+    function _mint(address to, uint tokenId) internal {
+        require(to != address(0), "ERC721: Can not mint to address 0");
+        require(_ownerOf[tokenId] == address(0), "ERC721: Token already exists");
+        _balanceOf[to]++;
+        _ownerOf[tokenId] = to;
+        emit Transfer(address(0), to, tokenId);
+    }
+
+    function _burn(uint tokenId) internal {
+        address owner = _ownerOf[tokenId];
+        require(owner != address(0), "ERC721: Token does not exists");
+        _balanceOf[owner]--;
+        delete _ownerOf[tokenId];
+        delete _approvals[tokenId];
+        emit Transfer(owner, address(0), tokenId);
+    }
 }
