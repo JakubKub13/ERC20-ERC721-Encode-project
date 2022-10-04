@@ -49,6 +49,17 @@ describe("MyERC20 Token", function () {
 
         it("Should revert when non-minter tries to mint tokens", async () => {
             await expect(myERC20Token.connect(jacob).mint(martin.address, 20)).to.be.revertedWith("MyERC20: Caller is not a minter")
-        })
-    })
+        });
+
+        it("Should revert transfer from non-admin account", async () => {
+            let minter = await myERC20Token.MINTER_ROLE();
+            await expect(myERC20Token.connect(jacob).mint(martin.address, 88)).to.be.revertedWith("MyERC20: Caller is not a minter");
+        });
+
+        it("Should revet transfer from non default-admin", async () => {
+            let minter = await myERC20Token.MINTER_ROLE();
+            expect(await myERC20Token.grantRole(minter, martin.address)).to.be.ok;
+            expect(await myERC20Token.connect(jacob).grantRole(minter, martin.address)).to.be.reverted;
+        });
+    });
 })
