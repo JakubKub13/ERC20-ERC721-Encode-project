@@ -3,6 +3,7 @@ pragma solidity 0.8.8;
 
 import "./interfaces/IERC165.sol";
 import "./interfaces/IERC721.sol";
+import "./interfaces/IERC721Receiver.sol";
 
 contract ERC721 is IERC721 {
     event Transfer(address indexed from, address indexed to, uint indexed id);
@@ -49,7 +50,11 @@ contract ERC721 is IERC721 {
 
 /// This function checks whether spender is owner of token ID or whether spender has permission to spend the token
     function _isApprovedOrOwner(address owner, address spender, uint tokenId) internal view returns (bool) {
-        return (spender == owner || isApprovedForAll[owner][spender] || spender == _approvals[tokenId], "ERC721: Not authorized");
+       return (
+        spender == owner ||
+        isApprovedForAll[owner][spender] ||
+        spender == _approvals[tokenId]
+       );
     }
 
     function transferFrom(address from, address to, uint tokenId) public {
@@ -61,5 +66,23 @@ contract ERC721 is IERC721 {
         _ownerOf[tokenId] = to;
         delete _approvals[tokenId];
         emit Transfer(from, to, tokenId);
+    }
+
+/// This function is similar to transferFrom() with difference if to is a contract we will have to call the funcion IERC721Receiver.onERC721Received()
+    function safeTransferFrom(address from, address to, uint tokenId) external {
+        transferFrom(from, to, tokenId);
+        // Returns 4 bytes of interface id
+        require(to.code.length == 0 ||
+            IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, "") == 
+            IERC721Receiver.onERC721Received.selector, "ERC721: Unsafe recipient");
+    }
+
+/// Similar to above function with difference that as input we are now passing some data
+    function safeTransferFrom(address from, address to, uint tokenId, bytes calldata data) external {
+        transferFrom(from, to, tokenId);
+        // Returns 4 bytes of interface id
+        require(to.code.length == 0 ||
+            IERC721Receiver(to).onERC721Received(msg.sender, from, tokenId, data) == 
+            IERC721Receiver.onERC721Received.selector, "ERC721: Unsafe recipient");
     }
 }
