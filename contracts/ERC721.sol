@@ -41,4 +41,14 @@ contract ERC721 is IERC721 {
         _approvals[tokenId] = to;
         emit Approval(owner, to, tokenId);
     }
+
+    function getApproved(uint tokenId) external view returns (address operator) {
+        require(_ownerOf[tokenId] != address(0), "ERC721: token does not exist");
+        return _approvals[tokenId];
+    }
+
+/// This function checks whether spender is owner of token ID or whether spender has permission to spend the token
+    function _isApprovedOrOwner(address owner, address spender, uint tokenId) internal view returns (bool) {
+        return (spender == owner || isApprovedForAll[owner][spender] || spender == _approvals[tokenId], "ERC721: Not authorized");
+    }
 }
