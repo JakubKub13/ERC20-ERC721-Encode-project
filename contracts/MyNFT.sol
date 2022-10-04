@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity 0.8.8;
 
 import "./ERC721.sol";
 
@@ -14,7 +14,7 @@ contract MyNFT is ERC721 {
         _burn(tokenId);
     }
 
-    function tokenURI(uint256 /* tokenId */) public view override returns (string memory) {
+    function tokenURI(uint256 /* tokenId */) public view returns (string memory) {
         // require(_exists(tokenId))
         return TOKEN_URI;
     }
